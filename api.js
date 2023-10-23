@@ -4,19 +4,22 @@ const port = 3000;
 const mysql = require('mysql2');
 const bcrypt = require('bcrypt');
 const cors = require('cors');
+const bodyParser = require('body-parser');
 
 app.use(cors({
   origin: '*', // 모든 출처 허용 옵션. true 를 써도 된다.
 }));
 
-const connection = mysql.createConnection({
+app.use(bodyParser.json());
+
+const db = mysql.createConnection({
   host: 'localhost',  // MySQL 호스트 주소
   user: 'root', // MySQL 사용자 이름
   password: '1234567890',  // MySQL 비밀번호
   database: 'doable'  // 사용할 데이터베이스 이름
 });
 
-connection.connect((err) => {
+db.connect((err) => {
   if (err) {
     console.error('MySQL 연결 오류: ' + err.stack);
     return;
@@ -24,43 +27,30 @@ connection.connect((err) => {
   console.log('MySQL 연결 성공');
 });
 
-
-app.get('/', (req, res) => {
-  res.send('Hello, World!');
-});
-
 // auth
 app.post('/login', async (req, res) => {
-  const { username, password } = req.body;
+  const { userid, password } = req.body;
 
-  if (!userid || !password) {
-    return res.status(400).json({ error: 'Username and password are required.' });
-  }
-
-  try {
-    // 사용자를 데이터베이스에서 조회
-    const [results] = await connection.execute('SELECT * FROM users WHERE userid = ?', [username]);
-    connection.end();
-
-    if (results.length === 0) {
-      return res.status(401).json({ error: 'User not found.' });
+  // MySQL 데이터베이스에서 사용자 정보 확인
+  const query = 'SELECT * FROM users WHERE userid = ? AND password = ?';
+  db.query(query, [userid, password], (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
     }
 
-    const user = results[0];
-    const passwordMatch = await bcrypt.compare(password, user.password);
-
-    if (passwordMatch) {
-      // 로그인 성공
-      return res.json({ message: 'Login successful', user });
+    if (results.length > 0) {
+      // 유효한 사용자인 경우
+      const user = results[0];
+      res.json({ message: '로그인 성공' , user});
     } else {
-      return res.status(401).json({ error: 'Invalid password.' });
+      // 사용자 정보가 일치하지 않는 경우
+      res.status(401).json({ error: '로그인 실패' });
     }
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: 'Internal server error' });
-  }
+  });
 });
 
+
+// 회원가입 
 app.post('/join', (req, res) => {
   const { name, userid, password, email } = req.body;
 
@@ -77,6 +67,25 @@ app.post('/join', (req, res) => {
     }
   });
 });
+
+// user
+app.get('/users/:id', (req, res) => {
+  const userId = req.params.id;
+
+  const sql = 'SELECT * FROM users WHERE id = ?';
+  db.query(sql, [userId], (err, results) => {
+    if (err) {
+      console.error('유저 조회 오류: ', err);
+      res.status(500).json({ message: '유저 조회 실패'});
+    } else if (results.length === 0) {
+      res.status(404).json({ message: '유저를 찾을 수 없음'});
+    } else {
+      const user = results[0];
+      res.status(200).json({ message: '유저 조회 성공', user});
+    }
+  });
+});
+
 
 
 app.listen(port, () => {
