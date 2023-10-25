@@ -105,6 +105,20 @@ app.post('/groups', (req, res) => {
   });
 });
 
+app.get('/users/:userId/groups', async (req, res) => {
+  const id = req.params.userId;
+  const sql = 'SELECT * FROM user_group WHERE creator_id = ?';
+
+  db.query(sql, [id], (err, results) => {
+    if (err) {
+      console.error('검색 오류: ', err);
+      res.status(500).json({ message: '데이터를 찾을 수 없음'});
+    } else {
+      console.log('검색 성공')
+      res.status(200).json({ groups: results});
+    }
+  });
+});
 
 
 app.listen(port, () => {
