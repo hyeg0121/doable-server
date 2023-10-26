@@ -58,10 +58,30 @@ router.post('/:groupId/user/:userId', (req, res) => {
     if (err) {
       res.status(500).json({ message: '그룹 가입 실패' });
     } else {
-      res.status(201).json({ group_members: result});
+      res.status(201).json({ message: '그룹 가입 성공'});
     }
   });
 });
+
+router.delete('/:groupId', (req, res) => {
+  const groupId = req.params.groupId;
+
+  // MySQL 데이터베이스에서 그룹 삭제
+  const sql = 'DELETE FROM user_group WHERE id = ?';
+
+  db.query(sql, [groupId], (err, result) => {
+    if (err) {
+      console.error('그룹 삭제 오류:', err);
+      res.status(500).json({ message: '그룹 삭제 실패' });
+    } else if (result.affectedRows === 0) {
+      res.status(404).json({ message: '그룹을 찾을 수 없음' });
+    } else {
+      console.log('그룹 삭제 성공');
+      res.status(200).json({ message: '그룹 삭제 성공' });
+    }
+  });
+});
+
 
 
 
