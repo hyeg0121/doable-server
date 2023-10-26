@@ -53,15 +53,28 @@ router.post('/:groupId/user/:userId', (req, res) => {
   const groupId = req.params.groupId;
   const userId = req.params.userId;
 
-  const sql = 'INSERT INTO group_members (user_id, group_id, join_date) VALUES (?, ?, ?)';
-  db.query(sql, [groupId, userId, new Date()], (err, result) => {
-    if (err) {
+  // 먼저 해당 사용자가 이미 그 그룹에 가입되어 있는지 확인
+  const checkMembershipSql = 'SELECT * FROM group_members WHERE user_id = ? AND group_id = ?';
+  db.query(checkMembershipSql, [userId, groupId], (checkErr, checkResults) => {
+    if (checkErr) {
       res.status(500).json({ message: '그룹 가입 실패' });
+    } else if (checkResults.length > 0) {
+      // 이미 가입한 경우, 가입 실패 반환
+      res.status(400).json({ message: '이미 그룹에 가입되어 있습니다.' });
     } else {
-      res.status(201).json({ message: '그룹 가입 성공'});
+      // 그룹에 가입되어 있지 않은 경우, 가입 처리
+      const sql = 'INSERT INTO group_members (user_id, group_id, join_date) VALUES (?, ?, ?)';
+      db.query(sql, [userId, groupId, new Date()], (err, result) => {
+        if (err) {
+          res.status(500).json({ message: '그룹 가입 실패' });
+        } else {
+          res.status(201).json({ message: '그룹 가입 성공' });
+        }
+      });
     }
   });
 });
+
 
 router.delete('/:groupId', (req, res) => {
   const groupId = req.params.groupId;
