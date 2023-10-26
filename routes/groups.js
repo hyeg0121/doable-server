@@ -12,15 +12,15 @@ router.post('/', (req, res) => {
   'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
 
   db.query(sql, [creator_id, group_name, group_description, allow_search, group_goal, goal_name, operation_type, member_count, max_members], (err1, result1) => {
-    if (err) {
+    if (err1) {
       console.error('그룹 생성 오류:', err1);
       res.status(500).json({ message: '그룹 생성 실패' });
     } else {
       const now = new Date();
-      const joinDate = now.getFullYear() + ' - ' + (now.getMonth() + 1) + ' - ' + now.getDate() // 가입 날짜
-
-      const sql = 'INSERT INTO group_members (user_id, group_id, join_date) VALUES (?, ?, ?)';
-      db.query(sql, [creator_id, result2.id, joinDate], (err2, result2) => {
+      const joinDate = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate() // 가입 날짜
+      console.log(result1);
+      const sql2 = 'INSERT INTO group_members (user_id, group_id, join_date) VALUES (?, ?, ?)';
+      db.query(sql2, [creator_id, result1.insertId, joinDate], (err2, result2) => {
         if (err2) {
           console.error('멤버 추가 오류:', err2);
           res.status(500).json({ message: '멤버 추가 오류' });
