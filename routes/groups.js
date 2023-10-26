@@ -16,8 +16,8 @@ router.post('/', (req, res) => {
       console.error('그룹 생성 오류:', err1);
       res.status(500).json({ message: '그룹 생성 실패' });
     } else {
-      const now = new Date();
-      const joinDate = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate() // 가입 날짜
+       // 가입 날짜
+      const joinDate = new Date();
       console.log(result1);
       const sql2 = 'INSERT INTO group_members (user_id, group_id, join_date) VALUES (?, ?, ?)';
       db.query(sql2, [creator_id, result1.insertId, joinDate], (err2, result2) => {
@@ -33,6 +33,20 @@ router.post('/', (req, res) => {
       console.log('그룹 생성 성공');
     }
   }); 
+});
+
+router.post('/:groupId/user/:userId', (req, res) => {
+  const groupId = req.params.groupId;
+  const userId = req.params.userId;
+
+  const sql = 'INSERT INTO group_members (user_id, group_id, join_date) VALUES (?, ?, ?)';
+  db.query(sql, [groupId, userId, new Date()], (err, result) => {
+    if (err) {
+      res.status(500).json({ message: '그룹 가입 실패' });
+    } else {
+      res.status(201).json({ group_members: result});
+    }
+  });
 });
 
 
