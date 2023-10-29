@@ -1,9 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db/db'); // db.js 모듈 가져오기
+const corsMiddleware = require('../middleware/cors');
 
 router.use(express.json());
 router.use(express.urlencoded({ extended: true }));
+router.use(corsMiddleware);
 
 router.get('/', (req, res) => {
   const sql = 'SELECT * FROM user_group';
@@ -20,21 +22,19 @@ router.get('/', (req, res) => {
 
 // post
 router.post('/', (req, res) => {
-  const { creator_id, group_name, group_description, allow_search, group_goal, goal_name, operation_type,member_count, max_members } = req.body;
+  const { creator_id, group_name, group_description, allow_search, goal_name, operation_type, member_count, unit } = req.body;
 
-  const sql = 'INSERT INTO user_group (creator_id, group_name, group_description, allow_search, group_goal, goal_name, operation_type, member_count, max_members)' +
-  'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+  const sql = 'INSERT INTO user_group (creator_id, group_name, group_description, allow_search, goal_name, operation_type, member_count, unit)' +
+  'VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
 
-  db.query(sql, [creator_id, group_name, group_description, allow_search, group_goal, goal_name, operation_type, member_count, max_members], (err1, result1) => {
+  db.query(sql, [creator_id, group_name, group_description, allow_search, goal_name, operation_type, member_count, unit], (err1, result1) => {
     if (err1) {
       console.error('그룹 생성 오류:', err1);
       res.status(500).json({ message: '그룹 생성 실패' });
     } else {
-       // 가입 날짜
-      const joinDate = new Date();
       console.log(result1);
-      const sql2 = 'INSERT INTO group_members (user_id, group_id, join_date) VALUES (?, ?, ?)';
-      db.query(sql2, [creator_id, result1.insertId, joinDate], (err2, result2) => {
+      const sql2 = 'INSERT INTO group_member (user_id, group_id, join_date) VALUES (?, ?, now())';
+      db.query(sql2, [creator_id, result1.insertId], (err2, result2) => {
         if (err2) {
           console.error('멤버 추가 오류:', err2);
           res.status(500).json({ message: '멤버 추가 오류' });
