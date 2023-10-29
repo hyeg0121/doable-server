@@ -1,15 +1,17 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../db/db'); // db.js 모듈 가져오기
+const db = require('../db/db');
+const corsMiddleware = require('../middleware/cors');
 
 router.use(express.json());
 router.use(express.urlencoded({ extended: true }));
+router.use(corsMiddleware);
 
 // 아이디로 유저 조회하기 
 router.get('/:id', (req, res) => {
   const userId = req.params.id;
 
-  const sql = 'SELECT * FROM users WHERE id = ?';
+  const sql = 'SELECT * FROM user WHERE id = ?';
   db.query(sql, [userId], (err, results) => {
     if (err) {
       console.error('유저 조회 오류: ', err);
@@ -26,7 +28,7 @@ router.get('/:id', (req, res) => {
 // 유저가 만든 그룹 조회하기 
 router.get('/:userId/groups', async (req, res) => {
     const userId = req.params.userId;
-    let sql = 'SELECT * FROM group_members WHERE user_id = ?';
+    let sql = 'SELECT * FROM group_member WHERE user_id = ?';
 
     db.query(sql, [userId], (err, results) => {
       if (err) {

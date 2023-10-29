@@ -1,17 +1,18 @@
 const express = require('express');
 const router = express.Router();
-const bcrypt = require('bcrypt');
 const db = require('../db/db');
+const corsMiddleware = require('../middleware/cors');
 
 router.use(express.json());
 router.use(express.urlencoded({ extended: true }));
+router.use(corsMiddleware);
 
 // auth
 router.post('/login', async (req, res) => {
     const { userid, password } = req.body;
 
     // MySQL 데이터베이스에서 사용자 정보 확인
-    const query = 'SELECT * FROM users WHERE userid = ? AND password = ?';
+    const query = 'SELECT * FROM user WHERE userid = ? AND password = ?';
     db.query(query, [userid, password], (err, results) => {
         if (err) {
         return res.status(500).json({ error: err.message });
