@@ -149,7 +149,7 @@ pids
 logs
 
 # .gitignore 파일 내부
-node_modules/
+
 
 npm-debug.log
 benchmarks/results.json
