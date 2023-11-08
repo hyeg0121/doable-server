@@ -7,9 +7,8 @@ router.use(express.json());
 router.use(express.urlencoded({ extended: true }));
 router.use(corsMiddleware);
 
-router.get('/', (req, res) => {
-  const sql = 'SELECT * FROM user_group';
-  db.query(sql, (err, results) => {
+router.get('/', (req, res) => {ß
+  db.query(`SELECT * FROM user_group`, (err, results) => {
     if (err) {
       console.error('그룹 조회 오류:', err);
       res.status(500).json({ message: '그룹 조회 실패' });
@@ -24,10 +23,11 @@ router.get('/', (req, res) => {
 router.post('/', (req, res) => {
   const { creator_id, group_name, group_description, allow_search, goal_name, operation_type, member_count, unit } = req.body;
 
-  const sql = 'INSERT INTO user_group (creator_id, group_name, group_description, allow_search, goal_name, operation_type, member_count, unit)' +
-  'VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-
-  db.query(sql, [creator_id, group_name, group_description, allow_search, goal_name, operation_type, member_count, unit], (err1, result1) => {
+  db.query(`INSERT INTO user_group 
+  (creator_id, group_name, group_description, allow_search, goal_name, operation_type, member_count, unit)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, 
+  [creator_id, group_name, group_description, allow_search, goal_name, operation_type, member_count, unit], 
+  (err1, result1) => {
     if (err1) {
       console.error('그룹 생성 오류:', err1);
       res.status(500).json({ message: '그룹 생성 실패' });
@@ -54,8 +54,7 @@ router.post('/:groupId/user/:userId', (req, res) => {
   const userId = req.params.userId;
 
   // 먼저 해당 사용자가 이미 그 그룹에 가입되어 있는지 확인
-  const checkMembershipSql = 'SELECT * FROM group_members WHERE user_id = ? AND group_id = ?';
-  db.query(checkMembershipSql, [userId, groupId], (checkErr, checkResults) => {
+  db.query(`SELECT * FROM group_members WHERE user_id = ? AND group_id = ?`, [userId, groupId], (checkErr, checkResults) => {
     if (checkErr) {
       res.status(500).json({ message: '그룹 가입 실패' });
     } else if (checkResults.length > 0) {

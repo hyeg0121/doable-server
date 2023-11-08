@@ -9,10 +9,9 @@ router.use(corsMiddleware);
 
 // 아이디로 유저 조회하기 
 router.get('/:id', (req, res) => {
-  const userId = req.params.id;
+  const userNo = req.params.id;
 
-  const sql = 'SELECT * FROM user WHERE id = ?';
-  db.query(sql, [userId], (err, results) => {
+  db.query(`SELECT * FROM user WHERE user_no = ?`, [userNo], (err, results) => {
     if (err) {
       console.error('유저 조회 오류: ', err);
       res.status(500).json({ message: '유저 조회 실패'});
@@ -26,11 +25,10 @@ router.get('/:id', (req, res) => {
 });
   
 // 유저가 만든 그룹 조회하기 
-router.get('/:userId/groups', async (req, res) => {
-    const userId = req.params.userId;
-    let sql = 'SELECT * FROM group_member WHERE user_id = ?';
+router.get('/:userNo/groups', async (req, res) => {
+    const userNo = req.params.userNo;
 
-    db.query(sql, [userId], (err, results) => {
+    db.query(`SELECT * FROM group_member WHERE user_no = ?`, [userNo], (err, results) => {
       if (err) {
           console.error('검색 오류: ', err);
           res.status(500).json({ message: '데이터를 찾을 수 없음'});

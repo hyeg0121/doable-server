@@ -7,12 +7,13 @@ router.use(express.json());
 router.use(express.urlencoded({ extended: true }));
 router.use(corsMiddleware);
 
+// todo: 비밀번호 암호화 하기
 // auth
 router.post('/login', async (req, res) => {
     const { userid, password } = req.body;
 
     // MySQL 데이터베이스에서 사용자 정보 확인
-    const query = 'SELECT * FROM user WHERE userid = ? AND password = ?';
+    const query = 'SELECT * FROM user WHERE user_id = ? AND user_pw = ?';
     db.query(query, [userid, password], (err, results) => {
         if (err) {
         return res.status(500).json({ error: err.message });
@@ -35,7 +36,7 @@ router.post('/join', (req, res) => {
     const { name, userid, password, email } = req.body;
 
     // MySQL 데이터베이스에 새로운 사용자 추가
-    const sql = 'INSERT INTO users (name, userid, password, email) VALUES (?, ?, ?, ?)';
+    const sql = 'INSERT INTO user (user_name, user_id, user_pw, user_email) VALUES (?, ?, ?, ?)';
     db.query(sql, [name, userid, password, email], (err, result) => {
         if (err) {
         console.error('회원가입 오류:', err);
