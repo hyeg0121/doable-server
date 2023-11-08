@@ -22,6 +22,21 @@ router.get('/', (req, res) => {
   );
 });
 
+router.delete('/:userNo', (req, res) => {
+  const userNo = req.params.userNo;
+
+  db.query(
+    `DELETE FROM user WHERE user_no = ?`,
+    [userNo],
+    (err, req) => {
+      if (err) {
+        res.status(500).json({ message: '삭제에 실패함'})
+      } else {
+        res.status(200).json({ message: '삭제 완료'})
+      }
+    }
+  )
+})
 
 router.get('/:id', (req, res) => {
   const userNo = req.params.id;
