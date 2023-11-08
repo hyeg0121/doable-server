@@ -2,12 +2,27 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db/db');
 const corsMiddleware = require('../middleware/cors');
+const { runInContext } = require('vm');
 
 router.use(express.json());
 router.use(express.urlencoded({ extended: true }));
 router.use(corsMiddleware);
 
 // 아이디로 유저 조회하기 
+router.get('/', (req, res) => {
+  db.query(`SELECT * FROM user`,
+    (err, results) => {
+      if (err) {
+        console.error('유저 조회 오류: ', err);
+        res.status(500).json({ message: '유저 조회 실패'});
+      } else {
+        res.status(200).json({users: results});
+      }
+    }
+  );
+});
+
+
 router.get('/:id', (req, res) => {
   const userNo = req.params.id;
 
