@@ -7,11 +7,13 @@ const usersRouter = require('./routes/users');
 const groupsRouter = require('./routes/groups');
 const authRouter = require('./routes/auth');
 const todosRouter = require('./routes/todos');
+const categoryRouter = require('./routes/category');
 
 app.use('/users', usersRouter);
 app.use('/groups', groupsRouter);
 app.use('/auth', authRouter);
 app.use('/todos', todosRouter);
+app.use('/category', categoryRouter);
 
 
 app.use(bodyParser.json());
