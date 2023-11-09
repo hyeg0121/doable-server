@@ -7,7 +7,7 @@ router.use(express.json());
 router.use(express.urlencoded({ extended: true }));
 router.use(corsMiddleware);
 
-router.get('/', (req, res) => {ß
+router.get('/', (req, res) => {
   db.query(`SELECT * FROM user_group`, (err, results) => {
     if (err) {
       console.error('그룹 조회 오류:', err);
