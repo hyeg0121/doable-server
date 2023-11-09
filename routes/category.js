@@ -23,4 +23,18 @@ router.post('/', (req, res) => {
     );
 });
 
+router.get('/', (req, res) => {
+    db.query(
+        `SELECT * FROM category`,
+        (err, results) => {
+            if (err) {
+                console.log(err);
+                res.status(500).json({ message: '카테고리 조회 실패' })
+            } else {
+                res.status(200).json(results);
+            }
+        }
+    );
+});
+
 module.exports = router;
